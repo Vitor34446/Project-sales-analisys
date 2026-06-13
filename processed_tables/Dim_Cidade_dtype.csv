@@ -1,0 +1,11 @@
+ID_Cidade;Cidade;Estado;Regiao;Populacao;PIB_PerCapita
+1;Rio De Janeiro;RJ;Sudeste; 3.794.854 ;R$ 33.289,00
+2;São Paulo;SP;Sudeste; 9.466.129 ;R$ 41.062,00
+3;Brasília;DF;Centro-Oeste; 159.031 ;R$ 114.458,00
+4;Curitiba;PR;Sul; 5.697.119 ;R$ 28.396,00
+5;Fortaleza;CE;Nordeste; 9.311.704 ;R$ 53.427,00
+6;Manaus;AM;Norte; 1.216.941 ;R$ 21.006,00
+7;Florianópolis;SC;Sul; 1.744.522 ;R$ 64.823,00
+8;Porto Alegre;RS;Sul; 6.010.453 ;R$ 42.460,00
+9;Belo Horizonte;MG;Sudeste; 10.835.264 ;R$ 75.142,00
+10;Salvador;BA;Nordeste; 7.902.574 ;R$ 84.352,00
