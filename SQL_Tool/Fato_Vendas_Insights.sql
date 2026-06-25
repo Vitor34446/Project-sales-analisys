@@ -24,3 +24,38 @@ JOIN read_csv_auto('processed_tables/Dim_Produto_dtype.csv') dp
 GROUP BY  dp.Produto
 ORDER BY Lucro_Real desc;
 
+-- profit over year --
+
+SELECT 
+EXTRACT(YEAR FROM Data_Venda) ano,
+SUM(((Preco_Unitario - Desconto) * Quantidade)
+-(Quantidade * Custo_Unitario)) Lucro_Real,
+FROM read_csv_auto('processed_tables/Fato_Vendas_dtype.csv')
+GROUP BY ano
+ORDER BY ano desc;
+
+-- profit over month --
+
+SELECT 
+EXTRACT(YEAR FROM Data_Venda) ano,
+EXTRACT(MONTH FROM Data_Venda) mes,
+SUM(((Preco_Unitario - Desconto) * Quantidade)
+-(Quantidade * Custo_Unitario)) Lucro_Real,
+FROM read_csv_auto('processed_tables/Fato_Vendas_dtype.csv')
+GROUP BY mes, ano
+ORDER BY mes, ano desc;
+
+-- create table with the column of the real profit --
+
+CREATE TABLE Fato_Vendas_RealProfit AS 
+
+SELECT *,
+((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
+-(fv.Quantidade * fv.Custo_Unitario) Lucro_Real,
+FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv;
+
+COPY Fato_Vendas_RealProfit 
+TO 'processed_tables/Fato_Vendas_RealProfit.csv'
+WITH (HEADER, DELIMITER ';');
+
+

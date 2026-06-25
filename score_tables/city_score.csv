@@ -1,0 +1,4 @@
+Estado_Civil,prob_grow,total_recept,variation_mean,volatility,score
+Divorciado,1.0,1.0,1.0,0.0,0.8
+Solteiro,0.0,0.0,0.12368281169729933,1.0,0.2371048435091898
+Casado,0.0,0.13939559002492174,0.0,0.08167291197321624,0.0442137003996276

@@ -11,7 +11,7 @@ SELECT *,
         ELSE 'Muito Alta'
     END AS Categoria_Renda
 
-FROM read_csv_auto('processed_tables/Dim_Cliente_clean.csv');
+FROM read_csv_auto('processed_tables/Dim_Cliente.csv');
 
 SELECT max(Renda_Mensal) maxi, MIN(Renda_Mensal) mini
 FROM Dim_Cliente_Categorizada
@@ -26,7 +26,7 @@ SELECT dc.Categoria_Renda,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas_RealProfit.csv') fv
 JOIN Dim_Cliente_Categorizada dc
     on fv.ID_Cliente = dc.ID_Cliente
 GROUP BY Categoria_Renda
@@ -43,7 +43,7 @@ select *,
         when Idade < 60 then 'Adult'
         else 'Elderly'
     end as Faixa_Etaria
-from read_csv_auto('processed_tables/Dim_Cliente_clean.csv');
+from read_csv_auto('processed_tables/Dim_Cliente.csv');
 
 SELECT Faixa_Etaria, count(*)qtd
 FROM Dim_Cliente_FaixaEtaria
@@ -54,7 +54,7 @@ SELECT df.Faixa_Etaria,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas_RealProfit.csv') fv
 JOIN Dim_Cliente_FaixaEtaria df
     on fv.ID_Cliente = df.ID_Cliente
 GROUP BY Faixa_Etaria
@@ -94,7 +94,7 @@ SELECT *,
         WHEN YEAR(Data_Cadastro) >= 2023 then 'Average'
         ELSE 'old'
     END AS Categoria_Cadastro
-FROM read_csv_auto('processed_tables/Dim_Cliente_clean.csv');
+FROM read_csv_auto('processed_tables/Dim_Cliente.csv');
 
 SELECT Categoria_Cadastro, count(*)qtd
 FROM Dim_Cliente_Cadastro
@@ -105,7 +105,7 @@ SELECT dc.Categoria_Cadastro,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas_RealProfit.csv') fv
 JOIN Dim_Cliente_Cadastro dc
     on fv.ID_Cliente = dc.ID_Cliente
 GROUP BY Categoria_Cadastro
@@ -135,4 +135,24 @@ SELECT * FROM Costumer_Profiles;
 
 COPY Costumer_Profiles 
 TO 'processed_tables/Costumer_profiles.csv'
+WITH (HEADER, DELIMITER ';');
+
+-- creating a dim_cliente with the classifications made --
+
+CREATE TABLE Dim_Cliente AS
+
+SELECT dc.*,
+dca.Categoria_Cadastro,
+dfa.Faixa_Etaria,
+dcat.Categoria_Renda
+FROM read_csv_auto('processed_tables/Dim_Cliente_clean.csv') dc
+JOIN Dim_Cliente_Cadastro dca
+    ON dc.ID_Cliente = dca.ID_Cliente
+JOIN Dim_Cliente_Categorizada dcat
+    ON dc.ID_Cliente = dcat.ID_Cliente
+JOIN Dim_Cliente_FaixaEtaria dfa
+    ON dc.ID_Cliente = dfa.ID_Cliente;
+
+COPY Dim_Cliente 
+TO 'processed_tables/Dim_Cliente.csv'
 WITH (HEADER, DELIMITER ';');

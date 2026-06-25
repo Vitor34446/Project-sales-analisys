@@ -15,19 +15,28 @@ def load_all_raw_data():
 def load_all_dtype_data():
     files2= {
         "Dim_Cidade":pd.read_csv("processed_tables/Dim_Cidade_dtype.csv", sep=";"),
-        "Dim_Cliente":pd.read_csv("processed_tables/Dim_Cliente_dtype.csv", sep=";"),
+        "Dim_Cliente":pd.read_csv("processed_tables/Dim_Cliente.csv", sep=";"),
         "Dim_Produto":pd.read_csv("processed_tables/Dim_Produto_dtype.csv", sep=";"),
-        "Fato_Vendas":pd.read_csv("processed_tables/Fato_Vendas_dtype.csv", sep=";")
+        "Fato_Vendas":pd.read_csv("processed_tables/Fato_Vendas_dtype.csv", sep=";"),
+        "Fato_Vendas_No_Outliers":pd.read_csv(
+            "processed_tables/Fato_Vendas_RealProfit.csv", sep=";")
     }
 
     files2["Dim_Cliente"]["Data_Cadastro"] = pd.to_datetime(
         files2["Dim_Cliente"]["Data_Cadastro"]
+       
     )
 
     files2["Fato_Vendas"]["Data_Venda"] = pd.to_datetime(
         files2["Fato_Vendas"]["Data_Venda"]
+       
     )
 
+    files2["Fato_Vendas_No_Outliers"]["Data_Venda"] = pd.to_datetime(
+            files2["Fato_Vendas_No_Outliers"]["Data_Venda"]
+        
+
+    )
     files2["Dim_Cliente"]["Idade"] = (
         files2["Dim_Cliente"]["Idade"]
         .astype("Int64")
@@ -71,6 +80,8 @@ def no_values_object(files):
     for name, df in files.items():
         obj = df.select_dtypes(include="object")
         files[name]= files[name].fillna("no value")
+
+    return files
 
 def see_outliers(files):
 
@@ -119,4 +130,11 @@ def outliers_removal(files):
             files_no_outliers[nome] = df.copy()
 
     return files_no_outliers
-    
+
+
+def clean_data():
+    file = load_all_dtype_data()
+    file_num = fillna_num(file)
+    file_object = no_values_object(file_num)
+
+    return file_object
