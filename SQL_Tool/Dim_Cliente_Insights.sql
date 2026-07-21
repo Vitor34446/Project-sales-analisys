@@ -24,13 +24,40 @@ ORDER BY qtd;
 
 SELECT dc.Categoria_Renda,
 SUM(fv.Quantidade) quant,
-SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
+SUM(((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_RealProfit.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas_Lucro.csv') fv
 JOIN Dim_Cliente_Categorizada dc
     on fv.ID_Cliente = dc.ID_Cliente
 GROUP BY Categoria_Renda
 ORDER BY Lucro_Real desc; 
+
+
+SELECT
+    dc.Categoria_Renda,
+    SUM(fv.Quantidade) AS Quant,
+    SUM(
+        ((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
+        - (fv.Quantidade * fv.Custo_Unitario)
+    ) AS Lucro_Real,
+    ROUND(
+        100.0 * SUM(
+            ((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
+            - (fv.Quantidade * fv.Custo_Unitario)
+        )
+        / SUM(
+            SUM(
+                ((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
+                - (fv.Quantidade * fv.Custo_Unitario)
+            )
+        ) OVER (),
+        2
+    ) AS Perc_Lucro
+FROM read_csv_auto('processed_tables/Fato_Vendas_Lucro.csv') fv
+JOIN Dim_Cliente_Categorizada dc
+    ON fv.ID_Cliente = dc.ID_Cliente
+GROUP BY dc.Categoria_Renda
+ORDER BY Lucro_Real DESC;
 
 -- Whict age returned the most sales --
 DROP TABLE IF EXISTS Dim_Cliente_FaixaEtaria;
@@ -54,6 +81,10 @@ SELECT df.Faixa_Etaria,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
+SUM(
+        ((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
+        - (fv.Quantidade * fv.Custo_Unitario)
+    ) / SUM(fv.Quantidade) AS lucro_por_unidade
 FROM read_csv_auto('processed_tables/Fato_Vendas_RealProfit.csv') fv
 JOIN Dim_Cliente_FaixaEtaria df
     on fv.ID_Cliente = df.ID_Cliente
@@ -90,8 +121,16 @@ DROP TABLE IF EXISTS Dim_Cliente_Cadastro;
 CREATE TABLE Dim_Cliente_Cadastro AS
 SELECT *,
     case
-        WHEN YEAR(Data_Cadastro) >= 2025 then 'Recent'
-        WHEN YEAR(Data_Cadastro) >= 2023 then 'Average'
+        WHEN YEAR(Data_Cadastro) >= 2025 then
+            CASE
+                WHEN YEAR(Data_Cadastro) = 2025 THEN 'New - First Year'
+                ELSE 'New - Second Year'
+            END
+        WHEN YEAR(Data_Cadastro) >= 2023 then
+            CASE
+                WHEN YEAR(Data_Cadastro) = 2023 THEN 'Average - First Year'
+                ELSE 'Average - Second Year'
+            END
         ELSE 'old'
     END AS Categoria_Cadastro
 FROM read_csv_auto('processed_tables/Dim_Cliente.csv');
@@ -101,6 +140,28 @@ FROM Dim_Cliente_Cadastro
 GROUP BY Categoria_Cadastro
 ORDER BY qtd;
 
+SELECT MIN(Data_Cadastro) min,
+MAX(Data_Cadastro) max,
+ FROM read_csv_auto('processed_tables/Dim_Cliente.csv');
+
+SELECT * FROM Dim_Cliente_Cadastro;
+
+SELECT
+    Categoria_Cadastro_1,
+    COUNT(*) AS Quantidade
+FROM Dim_Cliente_Cadastro
+WHERE Categoria_Cadastro_1 IN (
+    'Average - First Year',
+    'Average - Second Year',
+    'New - First Year',
+    'New - Second Year'
+)
+GROUP BY Categoria_Cadastro_1;
+
+
+SELECT count(*) quant,Categoria_Cadastro_1, 
+FROM Dim_Cliente_Cadastro
+GROUP BY Categoria_Cadastro_1;
 SELECT dc.Categoria_Cadastro,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
@@ -121,7 +182,7 @@ r.Categoria_Renda,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas_Lucro.csv') fv
 JOIN Dim_Cliente_FaixaEtaria f
     on fv.ID_Cliente = f.ID_Cliente
 join Dim_Cliente_Categorizada r

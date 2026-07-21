@@ -46,16 +46,19 @@ GROUP BY mes, ano
 ORDER BY mes, ano desc;
 
 -- create table with the column of the real profit --
+DROP TABLE if exists Fato_Vendas_RealProfit;
 
 CREATE TABLE Fato_Vendas_RealProfit AS 
 
 SELECT *,
-((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
+((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
 -(fv.Quantidade * fv.Custo_Unitario) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv;
+FROM read_csv_auto('processed_tables/Fato_Vendas_dtype.csv') fv;
 
 COPY Fato_Vendas_RealProfit 
-TO 'processed_tables/Fato_Vendas_RealProfit.csv'
+TO 'processed_tables/Fato_Vendas_Lucro.csv'
 WITH (HEADER, DELIMITER ';');
+
+SELECT * FROM Fato_Vendas_RealProfit;
 
 

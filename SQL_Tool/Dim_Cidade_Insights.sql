@@ -3,13 +3,19 @@
 select fv.ID_Cidade
 ,dc.Cidade,
 COUNT(*) quantidade,
-SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
+SUM(((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
+ROUND(
+        100.0 * SUM(CASE WHEN fv.Preco_Unitario <= 200 THEN fv.Quantidade ELSE 0 END)
+        / SUM(fv.Quantidade),
+        2
+    ) AS Percentual_Baratas,
 from read_csv_auto('processed_tables/Fato_Vendas_dtype.csv') fv
-JOIN read_csv_auto('processed_tables/Dim_Cidade_dtype.csv') dc
+JOIN read_csv_auto('processed_tables/Dim_Cidade.csv') dc
     on fv.ID_Cidade = dc.ID_Cidade
 GROUP BY fv.ID_Cidade, dc.Cidade
 ORDER BY Lucro_Real DESC;
+
 
 -- What is the correlation with PIB and the profit --
 DROP TABLE IF EXISTS Dim_Cidade_PIB;
@@ -52,7 +58,7 @@ SELECT *,
         ) >= 40000 THEN 'Average'
         ELSE 'Low'
     END AS PIB_Classificacao
-FROM read_csv_auto('processed_tables/Dim_Cidade_dtype.csv');
+FROM read_csv_auto('processed_tables/Dim_Cidade.csv');
 
 SELECT * FROM Dim_Cidade_PIB;
 
@@ -65,7 +71,7 @@ SELECT dp.PIB_Classificacao,
 SUM(fv.Quantidade) quant,
 SUM(((fv.Preco_Unitario - fv.Desconto) * fv.Quantidade)
 -(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
-FROM read_csv_auto('processed_tables/Fato_Vendas_clean.csv') fv
+FROM read_csv_auto('processed_tables/Fato_Vendas.csv') fv
 JOIN Dim_Cidade_PIB dp
     on fv.ID_Cidade = dp.ID_Cidade
 GROUP BY PIB_Classificacao
@@ -139,3 +145,33 @@ dc.Regiao
 ORDER BY Lucro_Real desc;
 
 SELECT * FROM City_Profile;
+
+CREATE TABLE Dim_Cidade AS
+
+SELECT dc.*,
+dcp.Classificaçao_popula,
+pib.PIB_Classificacao,
+FROM read_csv_auto('processed_tables/Dim_Cidade_dtype.csv') dc
+JOIN Dim_Cidade_Populacao dcp
+    ON dc.ID_Cidade = dcp.ID_Cidade
+JOIN Dim_Cidade_PIB pib
+    ON dc.ID_Cidade = pib.ID_Cidade;
+
+COPY Dim_Cidade 
+TO 'processed_tables/Dim_Cidade.csv'
+WITH (HEADER, DELIMITER ';');
+
+
+select dc.Cidade,
+COUNT(*) quantidade,
+dp.Produto,
+SUM(((fv.Preco_Unitario * fv.Quantidade) - fv.Desconto)
+-(fv.Quantidade * fv.Custo_Unitario)) Lucro_Real,
+from read_csv_auto('processed_tables/Fato_Vendas_dtype.csv') fv
+JOIN read_csv_auto('processed_tables/Dim_Cidade.csv') dc
+    on fv.ID_Cidade = dc.ID_Cidade
+JOIN read_csv_auto('processed_tables/Dim_Produto_dtype.csv') dp
+    on fv.ID_Produto = dp.ID_Produto
+--WHERE Produto = 'Monitor Gamer 165Hz'
+GROUP BY fv.ID_Cidade, dc.Cidade, dp.Produto
+ORDER BY Lucro_Real DESC;
