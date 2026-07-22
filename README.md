@@ -211,13 +211,13 @@ estimative_profit = mean_profit * estimative
 | Notebook Inspiron 15 | -85,445           |
 | Notebook Nitro 5     | 171,876           |
 
-| Registration_Category   |   prob_grow |   total_revenue |   volatility |    CV |  conservative score |
+| Registration_Category   |   prob_grow |   total_profit |   volatility |    CV |  conservative score |
 |:---------------------|------------:|---------------:|-------------:|------:|--------:|
 | Average              |       0.333 |          1     |        1     | 0.941 |   0.843 |
 | Recent               |       0     |          0     |        0.504 | 1     |   0.551 |
 | old                  |       1     |          0.467 |        0     | 0     |   0.247 |
 
-| Registration_Category   |   prob_grow |   total_revenue |   volatility |    CV |  growth score |
+| Registration_Category   |   prob_grow |   total_profit |   volatility |    CV |  growth score |
 |:---------------------|------------:|---------------:|-------------:|------:|--------:|
 | Average              |       0.333 |          1     |        1     | 0.941 |   0.721 |
 | old                  |       1     |          0.467 |        0     | 0     |   0.54  |
@@ -229,13 +229,13 @@ There is also a strong relationship between the Average Registration category, H
 
 The average customer age is 44 years, with a standard deviation of 18.3 years and a coefficient of variation (CV) of 41.6%, indicating relatively high variability. Therefore, age should not be considered the primary parameter for decision-making.
 
-| Age_Range   |   prob_grow |   total_revenue |   volatility |    CV |  conservative score |
+| Age_Range   |   prob_grow |   total_profit |   volatility |    CV |  conservative score |
 |:---------------|------------:|---------------:|-------------:|------:|--------:|
 | Adult          |       0     |          1     |        1     | 0.987 |   0.795 |
 | Elderly        |       1     |          0.374 |        0.873 | 0.237 |   0.594 |
 | Young          |       0     |          0.055 |        0.384 | 1     |   0.521 |
 
-| Age_Range   |   prob_grow |   total_revenue |   volatility |    CV |  growth score |
+| Age_Range   |   prob_grow |   total_profit |   volatility |    CV |  growth score |
 |:---------------|------------:|---------------:|-------------:|------:|--------:|
 | Elderly        |       1     |          0.374 |        0.873 | 0.237 |   0.647 |
 | Adult          |       0     |          1     |        1     | 0.987 |   0.597 |
@@ -277,14 +277,14 @@ print(" 3%",var4)
 print("%",var5)
 ```
 
-| Salary_Range   |   prob_grow |   total_revenue |   volatility |    CV |  growth score |
+| Salary_Range   |   prob_grow |   total_profit |   volatility |    CV |  growth score |
 |:------------------|------------:|---------------:|-------------:|------:|--------:|
 | High              |           1 |          1     |        1     | 0.53  |   0.906 |
 | Very Hight        |           1 |          0.632 |        0.427 | 0.221 |   0.676 |
 | Low             |           1 |          0     |        0     | 1     |   0.6   |
 | Mean             |           0 |          0.409 |        0.727 | 0     |   0.195 |
 
-| Salary_Range   |   prob_grow |   total_revenue |   volatility |    CV |  conservative score |
+| Salary_Range   |   prob_grow |   total_profit |   volatility |    CV |  conservative score |
 |:------------------|------------:|---------------:|-------------:|------:|--------:|
 | High              |           1 |          1     |        1     | 0.53  |   0.812 |
 | Low             |           1 |          0     |        0     | 1     |   0.6   |
